@@ -1,11 +1,20 @@
-from jinja2 import Environment, FileSystemLoader
-ENV = Environment(loader=FileSystemLoader('.'))
-template = ENV.get_template("template-task2.j2")
-class NetworkInterface(object):
-    def __init__(self, name, description, vlan, uplink=True):
-        self.name = name
-        self.description = description
-        self.vlan = vlan
-        self.uplink = uplink
-interface_obj = NetworkInterface("GigabitEthernet0/1", "Server Port", 10)
-print(template.render(interface=interface_obj))
+from netmiko import Netmiko
+devices = [{"device_type": "cisco_ios",
+ "ip": "192.168.1.105",
+ "username": "student",
+ "password": "Meilab123",
+ "port": "22"},
+ {"device_type": "cisco_ios",
+ "ip": "192.168.1.106",
+ "username": "student",
+ "password": "Meilab123",
+ "port": "22",
+ }]
+for device in devices:
+    net_connect = Netmiko(**device)
+    output = net_connect.send_command("show version")
+    net_connect.disconnect()
+    result = output.find('uptime is')
+    begin = int(result)
+    end = begin + 38
+    print(device['ip'] + " => " + output[int(begin):int(end)])
